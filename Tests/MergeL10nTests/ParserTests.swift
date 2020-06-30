@@ -114,7 +114,9 @@ class ParserTests: XCTestCase {
                 comment: "Comment for title")
         ]
 
-        let (match, rest) = LocalizedStringFile.parser().run(file)
+        let (match, rest) = LocalizedStringFile
+            .parser(requiresComments: true /* default value = true */ )
+            .run(file)
 
         XCTAssertEqual(expectedResult, match)
 
@@ -155,7 +157,9 @@ class ParserTests: XCTestCase {
             )
         ]
 
-        let (match, rest) = LocalizedStringFile.parser(requiresComments: false).run(file)
+        let (match, rest) = LocalizedStringFile
+            .parser(requiresComments: false /* default value = true */)
+            .run(file)
 
         XCTAssertEqual(expectedResult, match)
 
@@ -202,7 +206,9 @@ class ParserTests: XCTestCase {
             )
         ]
 
-        let (match, rest) = LocalizedStringFile.parser(requiresComments: false).run(file)
+        let (match, rest) = LocalizedStringFile
+            .parser(requiresComments: false /* default value = true */)
+            .run(file)
 
         XCTAssertEqual(expectedResult, match)
 
