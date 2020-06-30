@@ -17,9 +17,19 @@ let package = Package(
             name: "MergeL10n",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                "L10nModels"
+            ]
+        ),
+        .target(
+            name: "L10nModels",
+            dependencies: [
                 .product(name: "FoundationExtensionsStatic", package: "FoundationExtensions"),
                 "FunctionalParser"
             ]
+        ),
+        .testTarget(
+            name: "MergeL10nTests",
+            dependencies: ["L10nModels"]
         )
     ]
 )

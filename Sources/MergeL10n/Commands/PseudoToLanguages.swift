@@ -10,6 +10,7 @@ import ArgumentParser
 import Combine
 import Foundation
 import FoundationExtensions
+import L10nModels
 
 struct World {
     let fileManager: SimpleFileManager
@@ -21,12 +22,6 @@ extension World {
         fileManager: .default,
         environmentVariables: .default
     )
-}
-
-struct SimpleFileManager {
-    let fileExists: (String) -> Bool
-    let readTextFile: (String, String.Encoding) -> Result<String, Error>
-    let createTextFile: (String, String, String.Encoding) -> Bool
 }
 
 extension SimpleFileManager {

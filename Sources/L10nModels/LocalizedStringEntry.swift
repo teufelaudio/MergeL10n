@@ -8,16 +8,22 @@
 
 import Foundation
 
-struct LocalizedStringEntry: Equatable, Hashable, CustomStringConvertible {
-    let key: String
-    let value: String
-    var comment: String
+public struct LocalizedStringEntry: Equatable, Hashable, CustomStringConvertible {
+    public let key: String
+    public let value: String
+    public var comment: String
 
-    func hash(into hasher: inout Hasher) {
+    public init(key: String, value: String, comment: String) {
+        self.key = key
+        self.value = value
+        self.comment = comment
+    }
+
+    public func hash(into hasher: inout Hasher) {
         hasher.combine(key)
     }
 
-    var description: String {
+    public var description: String {
         """
         /* \(comment) */
         "\(key)" = "\(value)";
@@ -26,7 +32,7 @@ struct LocalizedStringEntry: Equatable, Hashable, CustomStringConvertible {
 }
 
 extension LocalizedStringEntry {
-    static func merge(keysSource: [LocalizedStringEntry], valuesSource: [LocalizedStringEntry], fillWithEmpty: Bool) -> [LocalizedStringEntry] {
+    public static func merge(keysSource: [LocalizedStringEntry], valuesSource: [LocalizedStringEntry], fillWithEmpty: Bool) -> [LocalizedStringEntry] {
         keysSource.compactMap { keysSourceEntry in
             guard var valuesSourceEntry = valuesSource.first(where: { $0.key == keysSourceEntry.key }) else {
                 return fillWithEmpty
