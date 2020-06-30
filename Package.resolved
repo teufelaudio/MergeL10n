@@ -11,6 +11,15 @@
         }
       },
       {
+        "package": "FunctionalParser",
+        "repositoryURL": "https://github.com/teufelaudio/FunctionalParser",
+        "state": {
+          "branch": "master",
+          "revision": "19c046822e06cc3c9fb8cd8593dc5f1b343ff4fc",
+          "version": null
+        }
+      },
+      {
         "package": "swift-argument-parser",
         "repositoryURL": "https://github.com/apple/swift-argument-parser",
         "state": {

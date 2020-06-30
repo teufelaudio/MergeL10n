@@ -8,6 +8,7 @@
 
 import Foundation
 import FoundationExtensions
+import FunctionalParser
 
 struct LocalizedStringFile {
     let basePath: String
@@ -28,10 +29,16 @@ struct LocalizedStringFile {
                         .mapError { _ in LocalizedStringFileError.fileCannotBeRead(self) }
                 }
                 .flatMap { contents in
-                    self.parser().run(contents).match.toResult(orError: LocalizedStringFileError.fileCannotBeParsed(self))
+                    let (match, rest) = self.parser().run(contents)
+                    guard rest.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                        return .failure(.fileParserHasUnmatchedString(self, rest: String(rest)))
+                    }
+                    return match.toResult(orError: .fileCannotBeParsed(self))
                 }
                 .flatMap { entries in
-                    entries.isEmpty ? .failure(LocalizedStringFileError.filePossibleEncodingProblemWhileParsing(self)) : .success(entries)
+                    entries.isEmpty
+                        ? .failure(.filePossibleEncodingProblemWhileParsing(self))
+                        : .success(entries)
                 }
         }
     }
@@ -54,26 +61,26 @@ struct LocalizedStringFile {
 
 extension LocalizedStringFile {
     func parser() -> Parser<[LocalizedStringEntry]> {
-        let comment = zip(
-            literal("/* "),
-            string(until: literal(" */")),
-            literal(" */"),
-            zeroOrMoreSpacesOrLines
+        let comment = Parser.zip(
+            .literal("/* "),
+            .string(until: .literal(" */")),
+            .literal(" */"),
+            .zeroOrMoreSpacesOrLines
         ).map { _, comments, _, _ in comments }
 
-        let localizedStringEntry: Parser<LocalizedStringEntry> = zip(
+        let localizedStringEntry: Parser<LocalizedStringEntry> = Parser.zip(
             comment,
-            literal("\""),
-            string(until: literal("\" = \"")),
-            literal("\" = \""),
-            string(until: literal("\";")),
-            literal("\";"),
-            zeroOrMoreSpacesOrLines
+            .literal("\""),
+            .string(until: .literal("\" = \"")),
+            .literal("\" = \""),
+            .string(until: .literal("\";")),
+            .literal("\";"),
+            .zeroOrMoreSpacesOrLines
         ).map { comment, _, key, _, value, _, _ in
             LocalizedStringEntry(key: key, value: value, comment: comment)
         }
 
-        return zeroOrMore(localizedStringEntry)
+        return Parser.zeroOrMore(localizedStringEntry)
     }
 }
 
@@ -82,6 +89,7 @@ enum LocalizedStringFileError: Error {
     case fileCannotBeRead(LocalizedStringFile)
     case fileCannotBeParsed(LocalizedStringFile)
     case filePossibleEncodingProblemWhileParsing(LocalizedStringFile)
+    case fileParserHasUnmatchedString(LocalizedStringFile, rest: String)
     case fileCannotBeSaved(LocalizedStringFile)
 }
 

@@ -9,14 +9,16 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMajor(from: "0.0.6")),
-        .package(url: "https://github.com/teufelaudio/FoundationExtensions", .upToNextMajor(from: "0.1.1"))
+        .package(url: "https://github.com/teufelaudio/FoundationExtensions", .upToNextMajor(from: "0.1.1")),
+        .package(url: "https://github.com/teufelaudio/FunctionalParser", .branch("master"))
     ],
     targets: [
         .target(
             name: "MergeL10n",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
-                .product(name: "FoundationExtensionsStatic", package: "FoundationExtensions")
+                .product(name: "FoundationExtensionsStatic", package: "FoundationExtensions"),
+                "FunctionalParser"
             ]
         )
     ]
