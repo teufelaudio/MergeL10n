@@ -22,7 +22,7 @@ public struct LocalizedStringFile {
         self.language = language
     }
 
-    public func read(encoding: String.Encoding) -> Reader<SimpleFileManager, Result<[LocalizedStringEntry], LocalizedStringFileError>> {
+    public func read(encoding: String.Encoding, requiresComments: Bool) -> Reader<SimpleFileManager, Result<[LocalizedStringEntry], LocalizedStringFileError>> {
         Reader { fileManager in
             Result.pure(fileManager.fileExists(self.fullPath))
                 .flatMap { exists in
@@ -34,7 +34,7 @@ public struct LocalizedStringFile {
                         .mapError { _ in LocalizedStringFileError.fileCannotBeRead(self) }
                 }
                 .flatMap { contents in
-                    let (match, rest) = LocalizedStringFile.parser().run(contents)
+                    let (match, rest) = LocalizedStringFile.parser(requiresComments: requiresComments).run(contents)
                     guard rest.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
                         return .failure(.fileParserHasUnmatchedString(self, rest: String(rest)))
                     }
@@ -65,17 +65,17 @@ public struct LocalizedStringFile {
 }
 
 extension LocalizedStringFile {
-    public static func parser() -> Parser<[LocalizedStringEntry]> {
+    public static func parser(requiresComments: Bool = true) -> Parser<[LocalizedStringEntry]> {
         let comment = Parser.zip(
             .literal("/* "),
             .string(until: .literal(" */")),
-            .literal(" */"),
-            .zeroOrMoreSpacesOrLines
-        ).map { _, comments, _, _ in comments }
+            .literal(" */")
+        )
+        .map { _, comments, _ in comments }
 
         let localizedStringEntry: Parser<LocalizedStringEntry> = Parser.zip(
-            comment,
-            .literal("\""),
+            requiresComments ? comment : comment.replaceMismatch(with: ""),
+            Parser.zip(.zeroOrMoreSpacesOrLines, .literal("\"")),
             .string(until: .literal("\" = \"")),
             .literal("\" = \""),
             Parser.string(until: .literal("\";")).replaceMismatch(with: ""),
@@ -104,7 +104,7 @@ extension LocalizedStringFile {
     public static func replace(language: LocalizedStringFile, withKeysFrom pseudoLanguage: [LocalizedStringEntry], fillWithEmpty: Bool, encoding: String.Encoding)
     -> Reader<SimpleFileManager, Result<Void, LocalizedStringFileError>> {
         language
-            .read(encoding: encoding)
+            .read(encoding: encoding, requiresComments: false)
             .mapValue {
                 $0.map { languageEntries -> [LocalizedStringEntry] in
                     LocalizedStringEntry.merge(keysSource: pseudoLanguage, valuesSource: languageEntries, fillWithEmpty: fillWithEmpty)

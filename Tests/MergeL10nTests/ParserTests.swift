@@ -96,4 +96,122 @@ class ParserTests: XCTestCase {
 
         XCTAssertEqual("", rest)
     }
+
+    func testRequiresCommentShouldFailWhenThereIsNoComment() throws {
+        let file =
+        """
+        /* Comment for title */
+        "L10n.MyModule.SomeView.title" = "This is the title";
+        "L10n.MyModule.SomeView.body" = "This is the body";
+        /* Comment for caption */
+        "L10n.MyModule.SomeView.caption" = "This is the caption";
+        """
+
+        let expectedResult = [
+            LocalizedStringEntry(
+                key: "L10n.MyModule.SomeView.title",
+                value: "This is the title",
+                comment: "Comment for title")
+        ]
+
+        let (match, rest) = LocalizedStringFile
+            .parser(requiresComments: true /* default value = true */ )
+            .run(file)
+
+        XCTAssertEqual(expectedResult, match)
+
+        XCTAssertEqual(
+            """
+            "L10n.MyModule.SomeView.body" = "This is the body";
+            /* Comment for caption */
+            "L10n.MyModule.SomeView.caption" = "This is the caption";
+            """,
+            rest)
+    }
+
+    func testRequiresCommentsDisabledShouldSucceedWhenThereIsNoComment() throws {
+        let file =
+        """
+        /* Comment for title */
+        "L10n.MyModule.SomeView.title" = "This is the title";
+        "L10n.MyModule.SomeView.body" = "This is the body";
+        /* Comment for caption */
+        "L10n.MyModule.SomeView.caption" = "This is the caption";
+        """
+
+        let expectedResult = [
+            LocalizedStringEntry(
+                key: "L10n.MyModule.SomeView.title",
+                value: "This is the title",
+                comment: "Comment for title"
+            ),
+            LocalizedStringEntry(
+                key: "L10n.MyModule.SomeView.body",
+                value: "This is the body",
+                comment: ""
+            ),
+            LocalizedStringEntry(
+                key: "L10n.MyModule.SomeView.caption",
+                value: "This is the caption",
+                comment: "Comment for caption"
+            )
+        ]
+
+        let (match, rest) = LocalizedStringFile
+            .parser(requiresComments: false /* default value = true */)
+            .run(file)
+
+        XCTAssertEqual(expectedResult, match)
+
+        XCTAssertEqual("", rest)
+    }
+
+    func testRequiresCommentsDisabledShouldSucceedWhenThereAreMultipleLinesWithNoComment() throws {
+        let file =
+        """
+        /* Comment for title */
+        "L10n.MyModule.SomeView.title" = "This is the title";
+        "L10n.MyModule.SomeView.body" = "This is the body";
+        "L10n.MyModule.SomeView.body2" = "This is the body2";
+        "L10n.MyModule.SomeView.body3" = "This is the body3";
+        /* Comment for caption */
+        "L10n.MyModule.SomeView.caption" = "This is the caption";
+        """
+
+        let expectedResult = [
+            LocalizedStringEntry(
+                key: "L10n.MyModule.SomeView.title",
+                value: "This is the title",
+                comment: "Comment for title"
+            ),
+            LocalizedStringEntry(
+                key: "L10n.MyModule.SomeView.body",
+                value: "This is the body",
+                comment: ""
+            ),
+            LocalizedStringEntry(
+                key: "L10n.MyModule.SomeView.body2",
+                value: "This is the body2",
+                comment: ""
+            ),
+            LocalizedStringEntry(
+                key: "L10n.MyModule.SomeView.body3",
+                value: "This is the body3",
+                comment: ""
+            ),
+            LocalizedStringEntry(
+                key: "L10n.MyModule.SomeView.caption",
+                value: "This is the caption",
+                comment: "Comment for caption"
+            )
+        ]
+
+        let (match, rest) = LocalizedStringFile
+            .parser(requiresComments: false /* default value = true */)
+            .run(file)
+
+        XCTAssertEqual(expectedResult, match)
+
+        XCTAssertEqual("", rest)
+    }
 }
