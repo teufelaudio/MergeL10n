@@ -38,10 +38,18 @@ public struct LocalizedStringFile {
                     guard rest.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
                         return .failure(.fileParserHasUnmatchedString(self, rest: String(rest)))
                     }
-                    return match.toResult(orError: .fileCannotBeParsed(self))
+                    guard let match else {
+                        return .failure(.fileCannotBeParsed(self))
+                    }
+                    
+                    return .success((match, contents))
                 }
-                .flatMap { entries in
-                    entries.isEmpty
+                .flatMap { (entries: [LocalizedStringEntry], contents: String) in
+                    guard !contents.isEmpty else {
+                        return .success([])
+                    }
+                    
+                   return entries.isEmpty
                         ? .failure(.filePossibleEncodingProblemWhileParsing(self))
                         : .success(entries)
                 }
