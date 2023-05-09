@@ -3,6 +3,15 @@ import L10nModels
 import XCTest
 
 class ParserTests: XCTestCase {
+    func testEmptyFile() throws {
+        let file = ""
+
+        let (match, rest) = LocalizedStringFile.parser().run(file)
+
+        XCTAssertTrue(match?.isEmpty ?? false)
+        XCTAssertEqual("", rest)
+    }
+    
     func testSingleLine() throws {
         let file =
         """
