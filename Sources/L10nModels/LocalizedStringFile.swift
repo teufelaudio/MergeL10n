@@ -65,7 +65,7 @@ public struct LocalizedStringFile {
             )
             .flatMap { contents in
                 fileManager
-                    .createTextFile(self.fullPath, contents, encoding)
+                    .createTextFile(self.fullPath, contents.appending("\n\n"), encoding)
                     ? .success(()) : .failure(LocalizedStringFileError.fileCannotBeSaved(self))
             }
         }
