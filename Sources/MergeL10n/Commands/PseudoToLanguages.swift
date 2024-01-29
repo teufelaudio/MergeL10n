@@ -72,8 +72,8 @@ struct PseudoToLanguages: ParsableCommand {
     @Option(help: "Separated-by-comma list of paths to base localizable strings folders. In this folder we expect to find zz.lproj directory and files. Environment Variable L10N_BASE_PATHS is an alternative.")
     var basePaths: String?
 
-    @Option(default: "en", help: "Which language is used for development. Default: en.")
-    var developmentLanguage: String
+    @Option(help: "Which language is used for development. Default: en.")
+    var developmentLanguage: String = "en"
 
     func run() throws {
         let world = World.default

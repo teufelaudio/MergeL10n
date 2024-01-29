@@ -1,4 +1,5 @@
-// swift-tools-version:5.2
+// swift-tools-version:5.8
+
 import PackageDescription
 
 let package = Package(
@@ -8,12 +9,12 @@ let package = Package(
         .executable(name: "MergeL10n", targets: ["MergeL10n"])
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMajor(from: "0.0.6")),
-        .package(url: "https://github.com/teufelaudio/FoundationExtensions", .upToNextMajor(from: "0.1.1")),
-        .package(url: "https://github.com/teufelaudio/FunctionalParser", .branch("master"))
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.3.0"),
+        .package(url: "https://github.com/teufelaudio/FoundationExtensions", from: "0.1.1"),
+        .package(url: "https://github.com/teufelaudio/FunctionalParser", branch: "master")
     ],
     targets: [
-        .target(
+        .executableTarget(
             name: "MergeL10n",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
@@ -23,7 +24,7 @@ let package = Package(
         .target(
             name: "L10nModels",
             dependencies: [
-                .product(name: "FoundationExtensionsStatic", package: "FoundationExtensions"),
+                .product(name: "FoundationExtensions", package: "FoundationExtensions"),
                 "FunctionalParser"
             ]
         ),
