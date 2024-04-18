@@ -49,9 +49,7 @@ public struct LocalizedStringFile {
                         return .success([])
                     }
                     
-                   return entries.isEmpty
-                        ? .failure(.filePossibleEncodingProblemWhileParsing(self))
-                        : .success(entries)
+                    return .success(entries)
                 }
         }
     }
@@ -103,7 +101,6 @@ public enum LocalizedStringFileError: Error {
     case folderNotFound(LocalizedStringFile)
     case fileCannotBeRead(LocalizedStringFile)
     case fileCannotBeParsed(LocalizedStringFile)
-    case filePossibleEncodingProblemWhileParsing(LocalizedStringFile)
     case fileParserHasUnmatchedString(LocalizedStringFile, rest: String)
     case fileCannotBeSaved(LocalizedStringFile)
 }
