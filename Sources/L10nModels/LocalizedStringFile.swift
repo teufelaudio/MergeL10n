@@ -10,7 +10,7 @@ import Foundation
 import FoundationExtensions
 import FunctionalParser
 
-public struct LocalizedStringFile {
+public struct LocalizedStringFile: Sendable {
     public let basePath: String
     public let language: String
     public var fullPath: String {

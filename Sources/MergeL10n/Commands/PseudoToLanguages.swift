@@ -18,22 +18,26 @@ struct World {
 }
 
 extension World {
-    static let `default` = World(
-        fileManager: .default,
-        environmentVariables: .default
-    )
+    static var `default`: World {
+        .init(
+            fileManager: .default,
+            environmentVariables: .default
+        )
+    }
 }
 
 extension SimpleFileManager {
-    static let `default` = SimpleFileManager(
-        fileExists: FileManager.default.fileExists,
-        readTextFile: { path, encoding in
-            Result { try String(contentsOfFile: path, encoding: encoding) }
-        },
-        createTextFile: { path, contents, encoding in
-            FileManager.default.createFile(atPath: path, contents: contents.data(using: encoding))
-        }
-    )
+    static var `default`: SimpleFileManager {
+        .init(
+            fileExists: FileManager.default.fileExists,
+            readTextFile: { path, encoding in
+                Result { try String(contentsOfFile: path, encoding: encoding) }
+            },
+            createTextFile: { path, contents, encoding in
+                FileManager.default.createFile(atPath: path, contents: contents.data(using: encoding))
+            }
+        )
+    }
 }
 
 struct EnvironmentVariables {
@@ -43,26 +47,28 @@ struct EnvironmentVariables {
 }
 
 extension EnvironmentVariables {
-    static let `default` = EnvironmentVariables(
-        get: { name in (getenv(name)).flatMap { String(utf8String: $0) } },
-        set: { key, value in setenv(key, value, 1) },
-        loadDotEnv: { path in
-            guard let file = try? String(contentsOfFile: path, encoding: .utf8) else { return }
-            file
-                .split { $0 == "\n" || $0 == "\r\n" }
-                .map(String.init)
-                .forEach { fullLine in
-                    let line = fullLine.trimmingCharacters(in: .whitespacesAndNewlines)
-
-                    guard line[line.startIndex] != "#" else { return }
-                    guard !line.isEmpty else { return }
-                    let parts = line.split(separator: "=", maxSplits: 1).map(String.init)
-                    let key = parts[0].trimmingCharacters(in: .whitespacesAndNewlines)
-                    let value = parts[1].trimmingCharacters(in: .whitespacesAndNewlines).trimmingCharacters(in: .init(arrayLiteral: "\""))
-                    setenv(key, value, 1)
+    static var `default`: EnvironmentVariables {
+        .init(
+            get: { name in (getenv(name)).flatMap { String(utf8String: $0) } },
+            set: { key, value in setenv(key, value, 1) },
+            loadDotEnv: { path in
+                guard let file = try? String(contentsOfFile: path, encoding: .utf8) else { return }
+                file
+                    .split { $0 == "\n" || $0 == "\r\n" }
+                    .map(String.init)
+                    .forEach { fullLine in
+                        let line = fullLine.trimmingCharacters(in: .whitespacesAndNewlines)
+                        
+                        guard line[line.startIndex] != "#" else { return }
+                        guard !line.isEmpty else { return }
+                        let parts = line.split(separator: "=", maxSplits: 1).map(String.init)
+                        let key = parts[0].trimmingCharacters(in: .whitespacesAndNewlines)
+                        let value = parts[1].trimmingCharacters(in: .whitespacesAndNewlines).trimmingCharacters(in: .init(arrayLiteral: "\""))
+                        setenv(key, value, 1)
+                    }
             }
-        }
-    )
+        )
+    }
 }
 
 struct PseudoToLanguages: ParsableCommand {
@@ -102,7 +108,7 @@ struct PseudoToLanguages: ParsableCommand {
     private func run(folder: String, languages: [String], developmentLanguage: String) -> Reader<SimpleFileManager, Result<Void, LocalizedStringFileError>>{
         Reader { fileManager in
             LocalizedStringFile(basePath: folder, language: "zz")
-                .read(encoding: .utf16, requiresComments: true)
+                .read(encoding: .ascii, requiresComments: true)
                 .inject(fileManager)
                 .flatMap { zzEntries in
                     languages.traverse { language in
