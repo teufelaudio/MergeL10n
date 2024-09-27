@@ -1,4 +1,4 @@
-// swift-tools-version:5.8
+// swift-tools-version:6.0
 
 import PackageDescription
 
@@ -10,7 +10,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.3.0"),
-        .package(url: "https://github.com/teufelaudio/FoundationExtensions", from: "0.1.1"),
+        .package(url: "https://github.com/teufelaudio/FoundationExtensions", from: "1.0.0"),
         .package(url: "https://github.com/teufelaudio/FunctionalParser", branch: "master")
     ],
     targets: [
