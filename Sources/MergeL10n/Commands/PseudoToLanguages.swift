@@ -108,7 +108,7 @@ struct PseudoToLanguages: ParsableCommand {
     private func run(folder: String, languages: [String], developmentLanguage: String) -> Reader<SimpleFileManager, Result<Void, LocalizedStringFileError>>{
         Reader { fileManager in
             LocalizedStringFile(basePath: folder, language: "zz")
-                .read(encoding: . utf16, requiresComments: true)
+                .read(encoding: .utf16, requiresComments: true)
                 .inject(fileManager)
                 .flatMap { zzEntries in
                     languages.traverse { language in
